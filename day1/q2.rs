@@ -10,7 +10,7 @@ fn main() {
         .map(|s| s.parse::<i32>().unwrap())
         .collect();
 
-    let windows: Vec<i32> = numbers.windows(3).map(|w| w[0] + w[1] + w[2]).collect();
+    let windows: Vec<i32> = numbers.windows(3).map(|w| w.iter().sum()).collect();
 
     let increasing: Vec<i32> = windows
         .iter()
