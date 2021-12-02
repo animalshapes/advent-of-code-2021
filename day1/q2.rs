@@ -10,9 +10,11 @@ fn main() {
         .map(|s| s.parse::<i32>().unwrap())
         .collect();
 
-    let increasing: Vec<i32> = numbers
+    let windows: Vec<i32> = numbers.windows(3).map(|w| w[0] + w[1] + w[2]).collect();
+
+    let increasing: Vec<i32> = windows
         .iter()
-        .zip(numbers.iter().skip(1))
+        .zip(windows.iter().skip(1))
         .map(|(a, b)| (b > a) as i32)
         .collect();
 
