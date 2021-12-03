@@ -1,4 +1,4 @@
-use std::{fs, env};
+use std::{env, fs};
 
 fn count_increasing(input: &[i32]) -> i32 {
     let increasing: Vec<i32> = input
