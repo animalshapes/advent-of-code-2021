@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, env};
 
 fn count_increasing(input: &[i32]) -> i32 {
     let increasing: Vec<i32> = input
@@ -12,7 +12,8 @@ fn count_increasing(input: &[i32]) -> i32 {
 }
 
 fn main() {
-    let filename = "src/input.txt";
+    let args: Vec<String> = env::args().collect();
+    let filename = &args[1];
 
     let contents = fs::read_to_string(filename).unwrap();
 

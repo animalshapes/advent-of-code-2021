@@ -1,4 +1,4 @@
-use std::fs;
+use std::{env, fs};
 
 enum Direction {
     Forward,
@@ -98,7 +98,8 @@ fn process_actions_q2(start: Status, actions: &[Action]) -> Status {
 }
 
 fn main() {
-    let filename: &str = "src/input.txt";
+    let args: Vec<String> = env::args().collect();
+    let filename = &args[1];
     let contents = read_file(filename);
 
     let actions = convert_to_actions(contents);
