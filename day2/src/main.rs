@@ -23,14 +23,14 @@ struct Status {
 }
 
 fn read_file(filename: &str) -> String {
-    return fs::read_to_string(filename).unwrap();
+    fs::read_to_string(filename).unwrap()
 }
 
 fn convert_to_actions(contents: String) -> Vec<Action> {
     let actions: Vec<Action> = contents
-        .split("\n")
+        .split('\n')
         .map(|s| {
-            let info: Vec<&str> = s.split(" ").collect();
+            let info: Vec<&str> = s.split(' ').collect();
             let action = info[0];
             let value = info[1].parse::<i32>().unwrap();
 
@@ -51,10 +51,10 @@ fn convert_to_actions(contents: String) -> Vec<Action> {
             }
         })
         .collect();
-    return actions;
+    actions
 }
 
-fn process_actions_q1(start: Location, actions: &Vec<Action>) -> Location {
+fn process_actions_q1(start: Location, actions: &[Action]) -> Location {
     let end: Location = actions
         .iter()
         .fold(start, |location, action| match action.direction {
@@ -71,10 +71,10 @@ fn process_actions_q1(start: Location, actions: &Vec<Action>) -> Location {
                 y: location.y - action.distance,
             },
         });
-    return end;
+    end
 }
 
-fn process_actions_q2(start: Status, actions: &Vec<Action>) -> Status {
+fn process_actions_q2(start: Status, actions: &[Action]) -> Status {
     let end: Status = actions
         .iter()
         .fold(start, |status, action| match action.direction {
@@ -94,7 +94,7 @@ fn process_actions_q2(start: Status, actions: &Vec<Action>) -> Status {
                 aim: status.aim - action.distance,
             },
         });
-    return end;
+    end
 }
 
 fn main() {

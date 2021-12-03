@@ -1,6 +1,6 @@
 use std::fs;
 
-fn count_increasing(input: &Vec<i32>) -> i32 {
+fn count_increasing(input: &[i32]) -> i32 {
     let increasing: Vec<i32> = input
         .iter()
         .zip(input.iter().skip(1))
@@ -8,7 +8,7 @@ fn count_increasing(input: &Vec<i32>) -> i32 {
         .collect();
 
     let sum: i32 = increasing.iter().sum();
-    return sum;
+    sum
 }
 
 fn main() {
@@ -17,7 +17,7 @@ fn main() {
     let contents = fs::read_to_string(filename).unwrap();
 
     let numbers: Vec<i32> = contents
-        .split("\n")
+        .split('\n')
         .map(|s| s.parse::<i32>().unwrap())
         .collect();
     let q1_ans = count_increasing(&numbers);
