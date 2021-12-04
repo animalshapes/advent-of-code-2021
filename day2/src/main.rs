@@ -41,45 +41,41 @@ fn convert_to_actions(contents: String) -> Vec<Action> {
 }
 
 fn process_actions_q1(start: Location, actions: &[Action]) -> Location {
-    let end: Location = actions
-        .iter()
-        .fold(start, |location, action| match action {
-            Action::Forward(d) => Location {
-                x: location.x + d,
-                y: location.y,
-            },
-            Action::Down(d) => Location {
-                x: location.x,
-                y: location.y + d,
-            },
-            Action::Up(d) => Location {
-                x: location.x,
-                y: location.y - d,
-            },
-        });
+    let end: Location = actions.iter().fold(start, |location, action| match action {
+        Action::Forward(d) => Location {
+            x: location.x + d,
+            y: location.y,
+        },
+        Action::Down(d) => Location {
+            x: location.x,
+            y: location.y + d,
+        },
+        Action::Up(d) => Location {
+            x: location.x,
+            y: location.y - d,
+        },
+    });
     end
 }
 
 fn process_actions_q2(start: Status, actions: &[Action]) -> Status {
-    let end: Status = actions
-        .iter()
-        .fold(start, |status, action| match action {
-            Action::Forward(d) => Status {
-                x: status.x + d,
-                y: status.y + status.aim * d,
-                aim: status.aim,
-            },
-            Action::Down(d) => Status {
-                x: status.x,
-                y: status.y,
-                aim: status.aim + d,
-            },
-            Action::Up(d) => Status {
-                x: status.x,
-                y: status.y,
-                aim: status.aim - d,
-            },
-        });
+    let end: Status = actions.iter().fold(start, |status, action| match action {
+        Action::Forward(d) => Status {
+            x: status.x + d,
+            y: status.y + status.aim * d,
+            aim: status.aim,
+        },
+        Action::Down(d) => Status {
+            x: status.x,
+            y: status.y,
+            aim: status.aim + d,
+        },
+        Action::Up(d) => Status {
+            x: status.x,
+            y: status.y,
+            aim: status.aim - d,
+        },
+    });
     end
 }
 
