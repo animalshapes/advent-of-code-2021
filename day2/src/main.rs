@@ -1,14 +1,9 @@
 use std::{env, fs};
 
-enum Direction {
-    Forward,
-    Down,
-    Up,
-}
-
-struct Action {
-    direction: Direction,
-    distance: i32,
+enum Action {
+    Forward(i32),
+    Down(i32),
+    Up(i32),
 }
 
 struct Location {
@@ -35,18 +30,9 @@ fn convert_to_actions(contents: String) -> Vec<Action> {
             let value = info[1].parse::<i32>().unwrap();
 
             match action {
-                "forward" => Action {
-                    direction: Direction::Forward,
-                    distance: value,
-                },
-                "down" => Action {
-                    direction: Direction::Down,
-                    distance: value,
-                },
-                "up" => Action {
-                    direction: Direction::Up,
-                    distance: value,
-                },
+                "forward" => Action::Forward(value),
+                "down" => Action::Down(value),
+                "up" => Action::Up(value),
                 _ => panic!("Unknown action"),
             }
         })
@@ -57,18 +43,18 @@ fn convert_to_actions(contents: String) -> Vec<Action> {
 fn process_actions_q1(start: Location, actions: &[Action]) -> Location {
     let end: Location = actions
         .iter()
-        .fold(start, |location, action| match action.direction {
-            Direction::Forward => Location {
-                x: location.x + action.distance,
+        .fold(start, |location, action| match action {
+            Action::Forward(d) => Location {
+                x: location.x + d,
                 y: location.y,
             },
-            Direction::Down => Location {
+            Action::Down(d) => Location {
                 x: location.x,
-                y: location.y + action.distance,
+                y: location.y + d,
             },
-            Direction::Up => Location {
+            Action::Up(d) => Location {
                 x: location.x,
-                y: location.y - action.distance,
+                y: location.y - d,
             },
         });
     end
@@ -77,21 +63,21 @@ fn process_actions_q1(start: Location, actions: &[Action]) -> Location {
 fn process_actions_q2(start: Status, actions: &[Action]) -> Status {
     let end: Status = actions
         .iter()
-        .fold(start, |status, action| match action.direction {
-            Direction::Forward => Status {
-                x: status.x + action.distance,
-                y: status.y + status.aim * action.distance,
+        .fold(start, |status, action| match action {
+            Action::Forward(d) => Status {
+                x: status.x + d,
+                y: status.y + status.aim * d,
                 aim: status.aim,
             },
-            Direction::Down => Status {
+            Action::Down(d) => Status {
                 x: status.x,
                 y: status.y,
-                aim: status.aim + action.distance,
+                aim: status.aim + d,
             },
-            Direction::Up => Status {
+            Action::Up(d) => Status {
                 x: status.x,
                 y: status.y,
-                aim: status.aim - action.distance,
+                aim: status.aim - d,
             },
         });
     end
