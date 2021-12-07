@@ -69,11 +69,8 @@ fn main() {
         })
         .collect::<Vec<_>>();
 
-    let draws_sequence = (board_size..draws.len())
-        .map(|index| draws.iter().take(index).collect::<Vec<_>>())
-        .collect::<Vec<_>>();
-
-    for draw in draws_sequence {
+    for index in board_size..draws.len() {
+        let draw: Vec<&u32> = draws.iter().take(index).collect();
         let draw_set = draw.iter().copied().collect::<HashSet<_>>();
 
         let bingos = board_combos
@@ -84,8 +81,27 @@ fn main() {
             .collect::<Vec<_>>();
 
         if bingos.iter().len() > 0 {
-            let score = calculate_board_score(bingos[0], &draw);
+            let score = calculate_board_score(bingos.first().unwrap(), &draw);
             println!("Part 1: {:?}", score);
+            break;
+        }
+    }
+
+    for index in (board_size..draws.len()).rev() {
+        let draw: Vec<&u32> = draws.iter().take(index).collect();
+        let draw_set = draw.iter().copied().collect::<HashSet<_>>();
+
+        let not_bingos = board_combos
+            .iter()
+            .zip(board_nums.iter())
+            .filter(|(board_combo, _)| !check_board(&board_combo[..], &draw_set))
+            .map(|(_, nums)| nums)
+            .collect::<Vec<_>>();
+
+        if not_bingos.iter().len() > 0 {
+            let previous_draw: Vec<&u32> = draws.iter().take(index + 1).collect();
+            let score = calculate_board_score(not_bingos.first().unwrap(), &previous_draw);
+            println!("Part 2: {:?}", score);
             break;
         }
     }
