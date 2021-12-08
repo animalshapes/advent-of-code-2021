@@ -1,4 +1,4 @@
-use std::{cmp, env, fs};
+use std::{cmp, env, fs, iter};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 struct Point {
@@ -51,33 +51,30 @@ impl Line {
     }
 
     fn get_points(&self) -> Vec<Point> {
+        let x_iter: Box<dyn Iterator<Item = usize>>;
+        let y_iter: Box<dyn Iterator<Item = usize>>;
         if self.is_horizontal() {
-            (self.start.x..=self.finish.x)
-                .map(|x| Point { x, y: self.start.y })
-                .collect::<Vec<Point>>()
+            x_iter = Box::new(self.start.x..=self.finish.x);
+            y_iter = Box::new(iter::repeat(self.start.y));
         } else if self.is_vertical() {
             let y_start = cmp::min(self.start.y, self.finish.y);
             let y_end = cmp::max(self.start.y, self.finish.y);
 
-            (y_start..=y_end)
-                .map(|y| Point { x: self.start.x, y })
-                .collect::<Vec<Point>>()
+            x_iter = Box::new(iter::repeat(self.start.x));
+            y_iter = Box::new(y_start..=y_end);
         } else {
-            let x_iter = self.start.x..=self.finish.x;
+            x_iter = Box::new(self.start.x..=self.finish.x);
             if self.start.y < self.finish.y {
-                let y_iter = self.start.y..=self.finish.y;
-                x_iter
-                    .zip(y_iter)
-                    .map(|(x, y)| Point { x, y })
-                    .collect::<Vec<Point>>()
+                y_iter = Box::new(self.start.y..=self.finish.y);
             } else {
-                let y_iter = (self.finish.y..=self.start.y).rev();
-                x_iter
-                    .zip(y_iter)
-                    .map(|(x, y)| Point { x, y })
-                    .collect::<Vec<Point>>()
+                y_iter = Box::new((self.finish.y..=self.start.y).rev());
             }
         }
+
+        x_iter
+            .zip(y_iter)
+            .map(|(x, y)| Point { x, y })
+            .collect::<Vec<Point>>()
     }
 }
 
