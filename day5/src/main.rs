@@ -1,49 +1,26 @@
-use std::{env, fs};
+use std::{cmp, env, fs};
 
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 struct Point {
-    x: u64,
-    y: u64,
+    x: usize,
+    y: usize,
 }
 
 impl Point {
     fn from_str(input: &str) -> Point {
-        let values: Vec<u64> = input
+        let no_whitespace: String = input.chars().filter(|c| !c.is_whitespace()).collect();
+        let values: Vec<usize> = no_whitespace
             .split(',')
-            .map(|val| val.parse::<u64>().unwrap())
+            .map(|val| val.parse::<usize>().unwrap())
             .collect();
         Point {
             x: values[0],
             y: values[1],
         }
     }
-
-    fn plus(&self, input: &Point) -> Point {
-        Point {
-            x: self.x + input.x,
-            y: self.y + input.y,
-        }
-    }
-
-    fn sub(&self, input: &Point) -> Point {
-        Point {
-            x: self.x - input.x,
-            y: self.y - input.y,
-        }
-    }
-
-    fn multiply(&self, factor: u64) -> Point {
-        Point {
-            x: self.x * factor,
-            y: self.y * factor,
-        }
-    }
-
-    fn cross(&self, input: &Point) -> u64 {
-        self.x * input.y - self.y * input.x
-    }
 }
 
+#[derive(Copy, Clone, Debug)]
 struct Line {
     start: Point,
     finish: Point,
@@ -52,7 +29,7 @@ struct Line {
 impl Line {
     fn from_str(input: &str) -> Line {
         let points: Vec<Point> = input.split("->").map(|val| Point::from_str(val)).collect();
-        if points[0].x + points[0].y <= points[1].x + points[1].y {
+        if points[0].x <= points[1].x {
             Line {
                 start: points[0],
                 finish: points[1],
@@ -73,22 +50,76 @@ impl Line {
         self.start.y == self.finish.y
     }
 
-    fn intersect(&self, line: &Line) -> Option<Point> {
-        let p = self.start;
-        let q = line.start;
-        let r = self.finish.sub(&self.start);
-        let s = line.finish.sub(&line.start);
-        let t = q.sub(&p).cross(&s) / (r.cross(&s));
-        let u = q.sub(&p).cross(&r) / (r.cross(&s));
-        if (t >= 0.0) && (t <= 1.0) && (u >= 0.0) && (u <= 1.0) {
-            return Some(p.plus(&r.multiply(t)))
+    fn get_points(&self) -> Vec<Point> {
+        if self.is_horizontal() {
+            (self.start.x..=self.finish.x)
+                .map(|x| Point { x, y: self.start.y })
+                .collect::<Vec<Point>>()
+        } else if self.is_vertical() {
+            let y_start = cmp::min(self.start.y, self.finish.y);
+            let y_end = cmp::max(self.start.y, self.finish.y);
+
+            (y_start..=y_end)
+                .map(|y| Point { x: self.start.x, y })
+                .collect::<Vec<Point>>()
+        } else {
+            let x_iter = self.start.x..=self.finish.x;
+            if self.start.y < self.finish.y {
+                let y_iter = self.start.y..=self.finish.y;
+                x_iter
+                    .zip(y_iter)
+                    .map(|(x, y)| Point { x, y })
+                    .collect::<Vec<Point>>()
+            } else {
+                let y_iter = (self.finish.y..=self.start.y).rev();
+                x_iter
+                    .zip(y_iter)
+                    .map(|(x, y)| Point { x, y })
+                    .collect::<Vec<Point>>()
+            }
         }
-        None
     }
+}
+
+fn count_intersections(arr: &[Vec<i32>]) -> usize {
+    arr.iter()
+        .map(|row| row.iter().filter(|&ele| *ele > 1).count())
+        .sum::<usize>()
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let filename = &args[1];
     let contents = fs::read_to_string(filename).unwrap();
+
+    let mut arr = vec![vec![0; 1000]; 1000];
+
+    let lines: Vec<Line> = contents
+        .split('\n')
+        .map(|row| Line::from_str(row))
+        .collect();
+
+    let (gridlines, diagonals): (Vec<Line>, Vec<Line>) = lines
+        .iter()
+        .partition(|&line| line.is_horizontal() || line.is_vertical());
+
+    for line in gridlines {
+        let points = line.get_points();
+        for Point { x, y } in points {
+            arr[x][y] += 1;
+        }
+    }
+
+    let intersections1 = count_intersections(&arr);
+    println!("Part 1: {:?}", intersections1);
+
+    for line in diagonals {
+        let points = line.get_points();
+        for Point { x, y } in points {
+            arr[x][y] += 1;
+        }
+    }
+
+    let intersections2 = count_intersections(&arr);
+    println!("Part 2: {:?}", intersections2);
 }
