@@ -60,7 +60,9 @@ fn get_oxygen_vec(values: &[Vec<u32>]) -> Vec<u32> {
     let mut new_values = values.to_vec();
     for i in 0..len {
         new_values = filter_by_occurrence(new_values, i, &|a, b| a <= b);
-        if new_values.len() == 1 { break }
+        if new_values.len() == 1 {
+            break;
+        }
     }
     new_values.first().unwrap().to_vec()
 }
@@ -70,7 +72,9 @@ fn get_co2_vec(values: &[Vec<u32>]) -> Vec<u32> {
     let mut new_values = values.to_vec();
     for i in 0..len {
         new_values = filter_by_occurrence(new_values, i, &|a, b| a > b);
-        if new_values.len() == 1 { break }
+        if new_values.len() == 1 {
+            break;
+        }
     }
     new_values.first().unwrap().to_vec()
 }
