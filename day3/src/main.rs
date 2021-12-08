@@ -1,9 +1,4 @@
 use std::convert::TryFrom;
-use std::{env, fs};
-
-fn read_file(filename: &str) -> String {
-    fs::read_to_string(filename).unwrap()
-}
 
 fn add_two_vecs(first: &[u32], second: &[u32]) -> Vec<u32> {
     first
@@ -88,9 +83,7 @@ fn convert_to_int(vec: &[u32], base: u32) -> u32 {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-    let contents = read_file(filename);
+    let contents = include_str!("day3.txt");
 
     let base: u32 = 2;
 

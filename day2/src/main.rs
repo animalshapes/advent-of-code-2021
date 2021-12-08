@@ -1,5 +1,3 @@
-use std::{env, fs};
-
 enum Action {
     Forward(i32),
     Down(i32),
@@ -17,11 +15,7 @@ struct Status {
     aim: i32,
 }
 
-fn read_file(filename: &str) -> String {
-    fs::read_to_string(filename).unwrap()
-}
-
-fn convert_to_actions(contents: String) -> Vec<Action> {
+fn convert_to_actions(contents: &str) -> Vec<Action> {
     let actions: Vec<Action> = contents
         .split('\n')
         .map(|s| {
@@ -80,9 +74,7 @@ fn process_actions_q2(start: Status, actions: &[Action]) -> Status {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-    let contents = read_file(filename);
+    let contents = include_str!("day2.txt");
 
     let actions = convert_to_actions(contents);
 

@@ -1,5 +1,3 @@
-use std::{env, fs};
-
 fn count_increasing(input: &[i32]) -> i32 {
     let increasing: Vec<i32> = input
         .iter()
@@ -12,10 +10,7 @@ fn count_increasing(input: &[i32]) -> i32 {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-
-    let contents = fs::read_to_string(filename).unwrap();
+    let contents = include_str!("day1.txt");
 
     let numbers: Vec<i32> = contents
         .split('\n')

@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::{env, fs};
 
 fn check_board(board_combo: &[HashSet<&u32>], draws: &HashSet<&u32>) -> bool {
     let num_matches = board_combo
@@ -21,9 +20,7 @@ fn calculate_board_score(board_nums: &HashSet<&u32>, draws: &[&u32]) -> u32 {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-    let contents = fs::read_to_string(filename).unwrap();
+    let contents = include_str!("day4.txt");
 
     let board_size: usize = 5;
 

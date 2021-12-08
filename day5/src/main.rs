@@ -1,4 +1,4 @@
-use std::{cmp, env, fs, iter};
+use std::{cmp, iter};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 struct Point {
@@ -85,9 +85,7 @@ fn count_intersections(arr: &[Vec<i32>]) -> usize {
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let filename = &args[1];
-    let contents = fs::read_to_string(filename).unwrap();
+    let contents = include_str!("day5.txt");
 
     let mut arr = vec![vec![0; 1000]; 1000];
 
