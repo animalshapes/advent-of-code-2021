@@ -14,12 +14,12 @@ fn calculate_fish(timer: usize, days: usize, memo: &mut [Vec<usize>]) -> usize {
 fn main() {
     let contents = include_str!("day6.txt");
 
-    let mut memo: Vec<Vec<usize>> = vec![vec![0; 257]; 9];
-
     let fish: Vec<usize> = contents
         .split(',')
         .map(|ele| ele.parse::<usize>().unwrap())
         .collect();
+
+    let mut memo: Vec<Vec<usize>> = vec![vec![0; 257]; 9];
 
     let p1_total: usize = fish
         .iter()
