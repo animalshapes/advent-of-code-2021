@@ -28,7 +28,7 @@ struct Line {
 
 impl Line {
     fn from_str(input: &str) -> Line {
-        let points: Vec<Point> = input.split("->").map(|val| Point::from_str(val)).collect();
+        let points: Vec<Point> = input.split("->").map(Point::from_str).collect();
         if points[0].x <= points[1].x {
             Line {
                 start: points[0],
@@ -91,7 +91,7 @@ fn main() {
 
     let lines: Vec<Line> = contents
         .split('\n')
-        .map(|row| Line::from_str(row))
+        .map(Line::from_str)
         .collect();
 
     let (gridlines, diagonals): (Vec<Line>, Vec<Line>) = lines
