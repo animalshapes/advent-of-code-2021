@@ -124,7 +124,7 @@ fn main() {
             let value = digits
                 .iter()
                 .map(|&digit| mappings.get(&alphabetize(digit)).unwrap())
-                .fold(0, |acc, ele| acc * 10 + *ele);
+                .fold(0, |acc, ele| acc * 10 + ele);
             value
         })
         .sum();
