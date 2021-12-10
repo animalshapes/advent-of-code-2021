@@ -1,22 +1,7 @@
 use std::collections::{HashMap, HashSet};
-use std::hash::Hash;
 
 fn find_by_len<T>(input: &[HashSet<T>], len: usize) -> Option<&HashSet<T>> {
     input.iter().find(|&ele| ele.len() == len)
-}
-
-fn union_chain<T>(first: &HashSet<T>, second: &HashSet<T>) -> HashSet<T>
-where
-    T: Eq + Hash + Copy,
-{
-    first.union(second).copied().collect()
-}
-
-fn diff_chain<T>(first: &HashSet<T>, second: &HashSet<T>) -> HashSet<T>
-where
-    T: Eq + Hash + Copy,
-{
-    first.difference(second).copied().collect()
 }
 
 fn alphabetize(s: &str) -> String {
@@ -36,29 +21,24 @@ fn construct_mappings(input: &[&str]) -> HashMap<String, usize> {
     let four = find_by_len(&input_sets, 4).unwrap();
     let eight = find_by_len(&input_sets, 7).unwrap();
 
-    let top = diff_chain(seven, one);
-    let four_top = union_chain(four, &top);
     let nine = input_sets
         .iter()
-        .find(|&ele| ele.len() == 6 && four_top.is_subset(ele))
+        .find(|&ele| ele.len() == 6 && ele.intersection(four).count() == 4)
         .unwrap();
-
-    let bottom = diff_chain(nine, &four_top);
-
-    let one_top_bot = union_chain(one, &union_chain(&top, &bottom));
 
     let three = input_sets
         .iter()
-        .find(|&ele| ele.len() == 5 && one_top_bot.is_subset(ele))
+        .find(|&ele| ele.len() == 5 && ele.intersection(one).count() == 2)
         .unwrap();
 
-    let mid = diff_chain(three, &one_top_bot);
-
-    let zero = diff_chain(eight, &mid);
+    let zero = input_sets
+        .iter()
+        .find(|&ele| ele.len() == 6 && ele != nine && ele.intersection(one).count() == 2)
+        .unwrap();
 
     let six = input_sets
         .iter()
-        .find(|&ele| ele.len() == 6 && ele != &zero && ele != nine)
+        .find(|&ele| ele.len() == 6 && ele != zero && ele != nine)
         .unwrap();
 
     let five = input_sets
