@@ -89,10 +89,7 @@ fn main() {
 
     let mut arr = vec![vec![0; 1000]; 1000];
 
-    let lines: Vec<Line> = contents
-        .split('\n')
-        .map(Line::from_str)
-        .collect();
+    let lines: Vec<Line> = contents.split('\n').map(Line::from_str).collect();
 
     let (gridlines, diagonals): (Vec<Line>, Vec<Line>) = lines
         .iter()
