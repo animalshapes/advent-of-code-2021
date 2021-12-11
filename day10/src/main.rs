@@ -1,5 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 
+use itertools::{Either, Itertools};
+
 #[derive(Debug)]
 enum ParseResult {
     CompletionScore(i64),
@@ -64,40 +66,20 @@ fn main() {
         .map(|line| line.chars().collect::<Vec<_>>())
         .collect();
 
-    let (syntax_error_scores, completion_scores): (Vec<ParseResult>, Vec<ParseResult>) = phrases
+    let (syntax_error_scores, mut completion_scores): (Vec<i64>, Vec<i64>) = phrases
         .iter()
         .map(|phrase| calculate_scores(phrase))
-        .partition(|val| match val {
-            ParseResult::SyntaxErrorScore(_) => true,
-            ParseResult::CompletionScore(_) => false,
+        .partition_map(|val| match val {
+            ParseResult::SyntaxErrorScore(val) => Either::Left(val),
+            ParseResult::CompletionScore(val) => Either::Right(val),
         });
 
-    let syntax_score: i64 = syntax_error_scores
-        .iter()
-        .map(|ele| {
-            if let ParseResult::SyntaxErrorScore(val) = ele {
-                *val
-            } else {
-                panic!("partition failed!")
-            }
-        })
-        .sum();
+    let syntax_score: i64 = syntax_error_scores.iter().sum();
 
     println!("Part 1: {:?}", syntax_score);
 
-    let mut unwrapped_completion_scores: Vec<i64> = completion_scores
-        .iter()
-        .map(|ele| {
-            if let ParseResult::CompletionScore(val) = ele {
-                *val
-            } else {
-                panic!("partition failed!")
-            }
-        })
-        .collect();
-
-    unwrapped_completion_scores.sort_unstable();
-    let completion_score = unwrapped_completion_scores[unwrapped_completion_scores.len() / 2];
+    completion_scores.sort_unstable();
+    let completion_score = completion_scores[completion_scores.len() / 2];
 
     println!("Part 2: {:?}", completion_score);
 }
