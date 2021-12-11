@@ -2,13 +2,7 @@ use std::collections::{HashSet, VecDeque};
 
 use itertools::{Either, Itertools};
 
-#[derive(Debug)]
-enum ParseResult {
-    CompletionScore(i64),
-    SyntaxErrorScore(i64),
-}
-
-fn calculate_scores(phrase: &[char]) -> ParseResult {
+fn calculate_scores(phrase: &[char]) -> Either<i64, i64> {
     let open_symbols: HashSet<char> = HashSet::from(['(', '[', '{', '<']);
 
     let mut stack: VecDeque<char> = VecDeque::new();
@@ -20,22 +14,22 @@ fn calculate_scores(phrase: &[char]) -> ParseResult {
             match (symbol, stack.pop_back()) {
                 (')', Some(x)) => {
                     if x != '(' {
-                        return ParseResult::SyntaxErrorScore(3);
+                        return Either::Left(3);
                     }
                 }
                 (']', Some(x)) => {
                     if x != '[' {
-                        return ParseResult::SyntaxErrorScore(57);
+                        return Either::Left(57);
                     }
                 }
                 ('}', Some(x)) => {
                     if x != '{' {
-                        return ParseResult::SyntaxErrorScore(1197);
+                        return Either::Left(1197);
                     }
                 }
                 ('>', Some(x)) => {
                     if x != '<' {
-                        return ParseResult::SyntaxErrorScore(25137);
+                        return Either::Left(25137);
                     }
                 }
                 _ => (),
@@ -55,7 +49,7 @@ fn calculate_scores(phrase: &[char]) -> ParseResult {
         })
         .fold(0, |acc, value| acc * 5 + value);
 
-    ParseResult::CompletionScore(completion_score)
+    Either::Right(completion_score)
 }
 
 fn main() {
@@ -69,10 +63,7 @@ fn main() {
     let (syntax_error_scores, mut completion_scores): (Vec<i64>, Vec<i64>) = phrases
         .iter()
         .map(|phrase| calculate_scores(phrase))
-        .partition_map(|val| match val {
-            ParseResult::SyntaxErrorScore(val) => Either::Left(val),
-            ParseResult::CompletionScore(val) => Either::Right(val),
-        });
+        .partition_map(|val| val);
 
     let syntax_score: i64 = syntax_error_scores.iter().sum();
 
