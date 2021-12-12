@@ -56,6 +56,10 @@ impl<'a, T> Iterator for Iter<'a, T> {
     }
 }
 
+fn list_contains<T: PartialEq>(input: &LinkedList<T>, pattern: &T) -> bool {
+    input.iter().any(|ele| ele == pattern)
+}
+
 fn is_large_cave(cave: &str) -> bool {
     cave.chars().all(|c| c.is_ascii_uppercase())
 }
@@ -81,7 +85,7 @@ fn traverse_map_p1<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
     while let Some((id, path)) = deq.pop_front() {
         let neighbors = map.get(id).expect("node does not exist in map");
         for &neighbor in neighbors {
-            if is_large_cave(neighbor) || !path.iter().any(|&ele| ele == neighbor) {
+            if is_large_cave(neighbor) || !list_contains(&path, &neighbor) {
                 if neighbor == "end" {
                     paths += 1
                 } else {
@@ -105,7 +109,7 @@ fn traverse_map_p2<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
         let neighbors = map.get(id).expect("node does not exist in map");
         for &neighbor in neighbors {
             if dupe {
-                if is_large_cave(neighbor) || !path.iter().any(|&ele| ele == neighbor) {
+                if is_large_cave(neighbor) || !list_contains(&path, &neighbor) {
                     if neighbor == "end" {
                         paths += 1;
                     } else {
