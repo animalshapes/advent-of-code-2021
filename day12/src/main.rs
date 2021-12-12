@@ -1,4 +1,64 @@
 use std::collections::{HashMap, VecDeque};
+use std::rc::Rc;
+
+type Link<T> = Option<Rc<Node<T>>>;
+
+struct Node<T> {
+    elem: T,
+    next: Link<T>,
+}
+
+struct LinkedList<T> {
+    head: Link<T>,
+}
+
+impl<T> LinkedList<T> {
+    pub fn new() -> Self {
+        LinkedList { head: None }
+    }
+
+    pub fn prepend(&self, elem: T) -> LinkedList<T> {
+        match &self.head {
+            Some(node) => LinkedList {
+                head: Some(Rc::new(Node {
+                    elem: elem,
+                    next: Some(Rc::clone(&node)),
+                })),
+            },
+            None => LinkedList {
+                head: Some(Rc::new(Node {
+                    elem: elem,
+                    next: None,
+                })),
+            },
+        }
+    }
+
+    pub fn iter(&self) -> Iter<'_, T> {
+        Iter {
+            next: self.head.as_deref(),
+        }
+    }
+}
+
+pub struct Iter<'a, T> {
+    next: Option<&'a Node<T>>,
+}
+
+impl<'a, T> Iterator for Iter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.map(|node| {
+            self.next = node.next.as_deref();
+            &node.elem
+        })
+    }
+}
+
+fn list_contains<T: PartialEq>(input: &LinkedList<T>, pattern: &T) -> bool {
+    input.iter().any(|ele| ele == pattern)
+}
 
 fn is_large_cave(cave: &str) -> bool {
     cave.chars().all(|c| c.is_ascii_uppercase())
@@ -18,18 +78,18 @@ fn convert_edges_to_map(edges: Vec<&str>) -> HashMap<&str, Vec<&str>> {
 }
 
 fn traverse_map_p1<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
-    let mut deq: VecDeque<(&str, Vec<&str>)> = VecDeque::from([("start", vec!["start"])]);
+    let initial_list = LinkedList::new().prepend("start");
+    let mut deq: VecDeque<(&str, LinkedList<&str>)> = VecDeque::from([("start", initial_list)]);
     let mut paths: i32 = 0;
 
     while let Some((id, path)) = deq.pop_front() {
         let neighbors = map.get(id).expect("node does not exist in map");
         for &neighbor in neighbors {
-            if is_large_cave(neighbor) || !path.contains(&neighbor) {
+            if is_large_cave(neighbor) || !list_contains(&path, &neighbor) {
                 if neighbor == "end" {
                     paths += 1
                 } else {
-                    let mut new_path = path.clone();
-                    new_path.push(neighbor);
+                    let new_path = path.prepend(neighbor);
                     deq.push_back((neighbor, new_path))
                 }
             }
@@ -40,20 +100,20 @@ fn traverse_map_p1<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
 }
 
 fn traverse_map_p2<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
-    let mut deq: VecDeque<(&str, Vec<&str>, bool)> =
-        VecDeque::from([("start", vec!["start"], false)]);
+    let initial_list = LinkedList::new().prepend("start");
+    let mut deq: VecDeque<(&str, LinkedList<&str>, bool)> =
+        VecDeque::from([("start", initial_list, false)]);
     let mut paths: i32 = 0;
 
     while let Some((id, path, dupe)) = deq.pop_front() {
         let neighbors = map.get(id).expect("node does not exist in map");
         for &neighbor in neighbors {
             if dupe {
-                if is_large_cave(neighbor) || !path.contains(&neighbor) {
+                if is_large_cave(neighbor) || !list_contains(&path, &neighbor) {
                     if neighbor == "end" {
                         paths += 1;
                     } else {
-                        let mut new_path = path.clone();
-                        new_path.push(neighbor);
+                        let new_path = path.prepend(neighbor);
                         deq.push_back((neighbor, new_path, dupe))
                     }
                 }
@@ -61,8 +121,7 @@ fn traverse_map_p2<'a, 'b>(map: &'b HashMap<&'a str, Vec<&'a str>>) -> i32 {
                 if neighbor == "end" {
                     paths += 1;
                 } else {
-                    let mut new_path = path.clone();
-                    new_path.push(neighbor);
+                    let new_path = path.prepend(neighbor);
                     let dupe = path
                         .iter()
                         .copied()
