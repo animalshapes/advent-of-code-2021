@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::collections::HashMap;
 
 fn char_windows(src: &str, win_size: usize) -> impl Iterator<Item = &str> {
@@ -12,32 +11,12 @@ fn char_windows(src: &str, win_size: usize) -> impl Iterator<Item = &str> {
 
 #[derive(Clone, Copy, Debug)]
 struct LetterCounts {
-    c: u64,
-    h: u64,
-    k: u64,
-    b: u64,
-    s: u64,
-    f: u64,
-    o: u64,
-    v: u64,
-    n: u64,
-    p: u64,
+    values: [u64; 10],
 }
 
 impl LetterCounts {
     fn new() -> LetterCounts {
-        LetterCounts {
-            c: 0,
-            h: 0,
-            k: 0,
-            b: 0,
-            s: 0,
-            f: 0,
-            o: 0,
-            v: 0,
-            n: 0,
-            p: 0,
-        }
+        LetterCounts { values: [0; 10] }
     }
 
     fn from_str(value: &str) -> LetterCounts {
@@ -50,84 +29,69 @@ impl LetterCounts {
 
     fn increment(&mut self, value: &str) {
         match value {
-            "C" => self.c += 1,
-            "H" => self.h += 1,
-            "K" => self.k += 1,
-            "B" => self.b += 1,
-            "S" => self.s += 1,
-            "F" => self.f += 1,
-            "O" => self.o += 1,
-            "V" => self.v += 1,
-            "N" => self.n += 1,
-            "P" => self.p += 1,
+            "B" => self.values[0] += 1,
+            "C" => self.values[1] += 1,
+            "F" => self.values[2] += 1,
+            "H" => self.values[3] += 1,
+            "K" => self.values[4] += 1,
+            "N" => self.values[5] += 1,
+            "O" => self.values[6] += 1,
+            "P" => self.values[7] += 1,
+            "S" => self.values[8] += 1,
+            "V" => self.values[9] += 1,
             _ => panic!("unexpected input"),
         }
     }
 
     fn add(&mut self, other: &LetterCounts) {
-        self.c += other.c;
-        self.h += other.h;
-        self.k += other.k;
-        self.b += other.b;
-        self.s += other.s;
-        self.f += other.f;
-        self.o += other.o;
-        self.v += other.v;
-        self.n += other.n;
-        self.p += other.p;
+        for (index, val) in self.values.iter_mut().enumerate() {
+            *val += other.values[index];
+        }
     }
 }
 
-fn process_template(count_map: &HashMap<&str, LetterCounts>, template: &str) -> LetterCounts {
+fn process_template(count_map: &HashMap<&str, LetterCounts>, template: &str) -> u64 {
     let mut counts = LetterCounts::from_str(template);
     for key in char_windows(template, 2) {
         counts.add(count_map.get(key).expect("must exist"));
     }
-    counts
+
+    let max = counts.values.iter().max().unwrap();
+    let min = counts.values.iter().min().unwrap();
+    max - min
 }
 
 fn main() {
-    let contents = include_str!("day14_test.txt").trim_end();
+    let contents = include_str!("day14.txt").trim_end();
 
     let (template, rules) = contents.split_once("\n\n").expect("unexpected format");
 
     let mut char_map: HashMap<&str, &str> = HashMap::new();
     let mut child_map: HashMap<&str, [String; 2]> = HashMap::new();
 
-    rules.split('\n').for_each(|rule| {
+    for rule in rules.lines() {
         let (key, value) = rule.split_once(" -> ").expect("unexpected rule format");
         char_map.insert(key, value);
+
         let mut inserted = key.to_owned();
         inserted.insert_str(1, value);
-        let first: String = inserted
-            .clone()
-            .char_indices()
-            .map(|(_, ele)| ele)
-            .take(2)
-            .collect();
-        let second: String = inserted
-            .clone()
-            .char_indices()
-            .map(|(_, ele)| ele)
-            .skip(1)
-            .take(2)
-            .collect();
+
+        let base = inserted.char_indices().map(|(_, ele)| ele);
+        let first: String = base.clone().take(2).collect();
+        let second: String = base.clone().skip(1).take(2).collect();
         child_map.insert(key, [first, second]);
-    });
-
-    let mut counter: HashMap<&str, LetterCounts> = HashMap::new();
-
-    for &key in char_map.keys() {
-        let added_char = *char_map.get(key).expect("impossible");
-        counter
-            .entry(key)
-            .or_insert_with(LetterCounts::new)
-            .increment(added_char);
     }
 
-    for _ in 0..39 {
-        let mut next_counter: HashMap<&str, LetterCounts> = counter.clone();
+    let mut counter: HashMap<&str, LetterCounts> = HashMap::new();
+    for &key in char_map.keys() {
+        counter.entry(key).or_insert_with(LetterCounts::new);
+    }
+
+    for i in 0..40 {
+        let mut next_counter: HashMap<&str, LetterCounts> = HashMap::new();
         for &key in char_map.keys() {
+            next_counter.entry(key).or_insert_with(LetterCounts::new);
+
             let children = child_map.get(key).expect("impossible");
             for child in children {
                 let child_slice = &child[..];
@@ -136,11 +100,19 @@ fn main() {
                     .entry(key)
                     .and_modify(|counts| counts.add(to_add));
             }
+            let added_char = *char_map.get(key).expect("impossible");
+            next_counter
+                .entry(key)
+                .and_modify(|count| count.increment(added_char));
         }
         counter = next_counter;
+
+        if i == 9 {
+            let p1_result = process_template(&counter, template);
+            println!("Part 1: {:?}", p1_result);
+        }
     }
 
-    let result = process_template(&counter, template);
-
-    println!("{:?}", counter);
+    let p2_result = process_template(&counter, template);
+    println!("Part 2: {:?}", p2_result);
 }
