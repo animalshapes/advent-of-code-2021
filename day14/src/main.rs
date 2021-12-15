@@ -97,11 +97,11 @@ fn polymer_insertion(template: &str, num_steps: usize, char_map: &HashMap<&str, 
 fn main() {
     let contents = include_str!("day14.txt").trim_end();
 
-    let (template, rules) = contents.split_once("\n\n").expect("unexpected format");
+    let (template, rules) = contents.split_once("\n\n").expect("unexpected file format");
 
     let char_map: HashMap<&str, &str> = rules
         .lines()
-        .map(|line| line.split_once(" -> ").expect("test"))
+        .map(|line| line.split_once(" -> ").expect("unexpected rule format"))
         .collect();
 
     let p1_result = polymer_insertion(template, 10, &char_map);
