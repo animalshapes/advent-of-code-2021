@@ -43,7 +43,7 @@ fn initialize_counts_from_str(value: &str) -> LetterCounts {
 }
 
 fn process_template(count_map: &HashMap<&str, LetterCounts>, template: &str) -> u64 {
-    let mut counts = initialize_counts_from_str(&template);
+    let mut counts = initialize_counts_from_str(template);
     for key in char_windows(template, 2) {
         add_counts(&mut counts, count_map.get(key).expect("must exist"));
     }
@@ -60,7 +60,7 @@ fn polymer_insertion(template: &str, num_steps: usize, char_map: &HashMap<&str, 
         .map(|(&key, &value)| {
             let mut inserted = key.to_owned();
             inserted.insert_str(1, value);
-            let base = inserted.chars().into_iter();
+            let base = inserted.chars();
             let first: String = base.clone().take(2).collect();
             let second: String = base.clone().skip(1).take(2).collect();
             (key, [first, second])
