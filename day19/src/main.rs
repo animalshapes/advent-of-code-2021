@@ -2,35 +2,35 @@ use hashbrown::HashSet;
 
 type Coordinate = (i32, i32, i32);
 
-fn merge_scan(full_map: &mut HashSet<Coordinate>, scan: &[Coordinate]) -> Option<Coordinate> {
-    let orientations: [fn(Coordinate) -> Coordinate; 24] = [
-        |(x, y, z)| (x, y, z),
-        |(x, y, z)| (x, -z, y),
-        |(x, y, z)| (x, -y, -z),
-        |(x, y, z)| (x, z, -y),
-        |(x, y, z)| (-x, -y, z),
-        |(x, y, z)| (-x, z, y),
-        |(x, y, z)| (-x, y, -z),
-        |(x, y, z)| (-x, -z, -y),
-        |(x, y, z)| (y, -x, z),
-        |(x, y, z)| (y, z, x),
-        |(x, y, z)| (y, x, -z),
-        |(x, y, z)| (y, -z, -x),
-        |(x, y, z)| (-y, x, z),
-        |(x, y, z)| (-y, -z, x),
-        |(x, y, z)| (-y, -x, -z),
-        |(x, y, z)| (-y, z, -x),
-        |(x, y, z)| (z, -y, x),
-        |(x, y, z)| (z, -x, -y),
-        |(x, y, z)| (z, y, -x),
-        |(x, y, z)| (z, x, y),
-        |(x, y, z)| (-z, -x, y),
-        |(x, y, z)| (-z, y, x),
-        |(x, y, z)| (-z, x, -y),
-        |(x, y, z)| (-z, -y, -x),
-    ];
+static ORIENTATIONS: [fn(Coordinate) -> Coordinate; 24] = [
+    |(x, y, z)| (x, y, z),
+    |(x, y, z)| (x, -z, y),
+    |(x, y, z)| (x, -y, -z),
+    |(x, y, z)| (x, z, -y),
+    |(x, y, z)| (-x, -y, z),
+    |(x, y, z)| (-x, z, y),
+    |(x, y, z)| (-x, y, -z),
+    |(x, y, z)| (-x, -z, -y),
+    |(x, y, z)| (y, -x, z),
+    |(x, y, z)| (y, z, x),
+    |(x, y, z)| (y, x, -z),
+    |(x, y, z)| (y, -z, -x),
+    |(x, y, z)| (-y, x, z),
+    |(x, y, z)| (-y, -z, x),
+    |(x, y, z)| (-y, -x, -z),
+    |(x, y, z)| (-y, z, -x),
+    |(x, y, z)| (z, -y, x),
+    |(x, y, z)| (z, -x, -y),
+    |(x, y, z)| (z, y, -x),
+    |(x, y, z)| (z, x, y),
+    |(x, y, z)| (-z, -x, y),
+    |(x, y, z)| (-z, y, x),
+    |(x, y, z)| (-z, x, -y),
+    |(x, y, z)| (-z, -y, -x),
+];
 
-    for orientation in orientations.iter() {
+fn merge_scan(full_map: &mut HashSet<Coordinate>, scan: &[Coordinate]) -> Option<Coordinate> {
+    for orientation in ORIENTATIONS.iter() {
         let rotated: Vec<Coordinate> = scan.iter().map(|&ele| orientation(ele)).collect();
         for (x1, y1, z1) in full_map.iter() {
             for (x2, y2, z2) in rotated.iter() {
