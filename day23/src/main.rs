@@ -7,6 +7,19 @@ type Rooms<const N: usize> = [[u8; N]; 4];
 type Corridor = [u8; 11];
 type Game<const N: usize> = (Corridor, Rooms<N>);
 
+fn print_game<const N: usize>((corridor, rooms): &Game<N>) {
+    println!("#############");
+    let test = String::from_utf8(corridor.iter().copied().collect()).unwrap();
+    println!("#{}#", test);
+    for i in 0..N {
+        println!(
+            "  #{}#{}#{}#{}#  ",
+            rooms[0][i] as char, rooms[1][i] as char, rooms[2][i] as char, rooms[3][i] as char
+        )
+    }
+    println!("  #########  ");
+}
+
 fn correct<const N: usize>(rooms: &Rooms<N>) -> bool {
     rooms
         .iter()
@@ -103,12 +116,13 @@ fn generate_states<const N: usize>(state: &Game<N>) -> Vec<(Game<N>, usize)> {
     states
 }
 
-fn optimize<const N: usize>(state: Game<N>) -> usize {
-    let mut heap: BinaryHeap<Reverse<(usize, Game<N>)>> = BinaryHeap::from([Reverse((0, state))]);
+fn optimize<const N: usize>(state: Game<N>) -> (usize, Vec<Game<N>>) {
+    let mut heap: BinaryHeap<Reverse<(usize, Game<N>, Vec<Game<N>>)>> =
+        BinaryHeap::from([Reverse((0, state, Vec::new()))]);
     let mut costs: HashMap<Game<N>, usize> = HashMap::new();
-    while let Some(Reverse((cost, state))) = heap.pop() {
+    while let Some(Reverse((cost, state, history))) = heap.pop() {
         if correct(&state.1) {
-            return cost;
+            return (cost, history);
         }
         if let Some(cost_map) = costs.get(&state) {
             if cost > *cost_map {
@@ -120,11 +134,13 @@ fn optimize<const N: usize>(state: Game<N>) -> usize {
             let new_cost = energy + cost;
             if new_cost < *costs.get(&new_state).unwrap_or(&usize::MAX) {
                 costs.insert(new_state, new_cost);
-                heap.push(Reverse((new_cost, new_state)));
+                let mut new_history = history.clone();
+                new_history.push(new_state);
+                heap.push(Reverse((new_cost, new_state, new_history)));
             }
         }
     }
-    0
+    (0, Vec::new())
 }
 
 fn main() {
@@ -152,9 +168,14 @@ fn main() {
 
     let corridor = [b'.'; 11];
 
-    let p1 = optimize((corridor, part1));
-    let p2 = optimize((corridor, part2));
+    let (p1, _) = optimize((corridor, part1));
+    let (p2, _) = optimize((corridor, part2));
 
     println!("Part 1: {:?}", p1);
     println!("Part 2: {:?}", p2);
+
+    // for (step, state) in p1_history.iter().enumerate() {
+    //     println!("{}", step);
+    //     print_game(state);
+    // }
 }
