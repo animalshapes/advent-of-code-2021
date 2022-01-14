@@ -75,4 +75,5 @@ fn main() {
         counter += 1;
     }
     println!("Part 1: {:?}", counter);
+    println!("Part 2: Remotely Start The Sleigh!")
 }
