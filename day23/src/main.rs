@@ -7,18 +7,18 @@ type Rooms<const N: usize> = [[u8; N]; 4];
 type Corridor = [u8; 11];
 type Game<const N: usize> = (Corridor, Rooms<N>);
 
-fn print_game<const N: usize>((corridor, rooms): &Game<N>) {
-    println!("#############");
-    let test = String::from_utf8(corridor.iter().copied().collect()).unwrap();
-    println!("#{}#", test);
-    for i in 0..N {
-        println!(
-            "  #{}#{}#{}#{}#  ",
-            rooms[0][i] as char, rooms[1][i] as char, rooms[2][i] as char, rooms[3][i] as char
-        )
-    }
-    println!("  #########  ");
-}
+// fn print_game<const N: usize>((corridor, rooms): &Game<N>) {
+//     println!("#############");
+//     let test = String::from_utf8(corridor.iter().copied().collect()).unwrap();
+//     println!("#{}#", test);
+//     for i in 0..N {
+//         println!(
+//             "  #{}#{}#{}#{}#  ",
+//             rooms[0][i] as char, rooms[1][i] as char, rooms[2][i] as char, rooms[3][i] as char
+//         )
+//     }
+//     println!("  #########  ");
+// }
 
 fn correct<const N: usize>(rooms: &Rooms<N>) -> bool {
     rooms
